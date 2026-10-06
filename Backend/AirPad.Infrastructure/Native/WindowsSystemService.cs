@@ -23,12 +23,10 @@ namespace AirPad.Infrastructure.Native
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
 
-        private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
-        private const uint WM_APPCOMMAND = 0x0319;
-
         private const byte VK_LWIN = 0x5B;
         private const byte VK_SNAPSHOT = 0x2C;
         private const byte VK_VOLUME_UP = 0xAF;
+        private const byte VK_VOLUME_MUTE = 0xAD;
         private const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
         private const uint KEYEVENTF_KEYUP = 0x0002;
 
@@ -38,18 +36,19 @@ namespace AirPad.Infrastructure.Native
             {
                 using var enumerator = new MMDeviceEnumerator();
                 
-                // Get the default microphone
-                var commDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
-                var multiDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                // Toggle ALL active microphones (handles external USB mics)
+                var captureDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
                 
-                if (commDevice != null)
+                foreach (var device in captureDevices)
                 {
-                    commDevice.AudioEndpointVolume.Mute = !commDevice.AudioEndpointVolume.Mute;
-                }
-                
-                if (multiDevice != null && multiDevice.ID != commDevice?.ID)
-                {
-                    multiDevice.AudioEndpointVolume.Mute = !multiDevice.AudioEndpointVolume.Mute;
+                    try
+                    {
+                        device.AudioEndpointVolume.Mute = !device.AudioEndpointVolume.Mute;
+                    }
+                    catch
+                    {
+                        // Some virtual or external devices might not support hardware mute via CoreAudio
+                    }
                 }
             }
             catch (Exception ex)
@@ -86,6 +85,12 @@ namespace AirPad.Infrastructure.Native
         {
             keybd_event(VK_VOLUME_UP, 0, 0, 0);
             keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_KEYUP, 0);
+        }
+
+        public void VolumeMute()
+        {
+            keybd_event(VK_VOLUME_MUTE, 0, 0, 0);
+            keybd_event(VK_VOLUME_MUTE, 0, KEYEVENTF_KEYUP, 0);
         }
     }
 }

@@ -29,7 +29,7 @@ class RemoteView extends StatelessWidget {
             children: [
               _buildStreamDeckButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
               _buildStreamDeckButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
-              _buildStreamDeckButton(Icons.mic, 'Mic Mute', Colors.orangeAccent, () => signalRService.invoke('ToggleMic')),
+              _buildStreamDeckButton(Icons.volume_off, 'System Mute', Colors.orangeAccent, () => signalRService.invoke('VolumeMute')),
               _buildStreamDeckButton(Icons.screenshot, 'Screenshot', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
               _buildStreamDeckButton(Icons.play_arrow, 'Play/Pause', Colors.blueAccent, () => signalRService.invoke('MediaPlayPause')),
               _buildStreamDeckButton(Icons.volume_up, 'Volume Up', Colors.purpleAccent, () => signalRService.invoke('VolumeUp')),

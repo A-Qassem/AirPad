@@ -8,5 +8,6 @@ namespace AirPad.Core.Interfaces
         void TakeScreenshot();
         void MediaPlayPause();
         void VolumeUp();
+        void VolumeMute();
     }
 }

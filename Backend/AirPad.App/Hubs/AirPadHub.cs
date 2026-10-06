@@ -112,5 +112,10 @@ namespace AirPad.App.Hubs
         {
             _systemService.VolumeUp();
         }
+
+        public void VolumeMute()
+        {
+            _systemService.VolumeMute();
+        }
     }
 }
