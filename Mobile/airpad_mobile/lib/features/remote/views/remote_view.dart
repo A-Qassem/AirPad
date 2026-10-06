@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/network/signalr_service.dart';
+
 class RemoteView extends StatelessWidget {
   const RemoteView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final signalRService = Get.find<SignalRService>();
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212), // Deep dark background
       appBar: AppBar(
@@ -23,12 +27,12 @@ class RemoteView extends StatelessWidget {
             crossAxisSpacing: 16,
             childAspectRatio: 1.2,
             children: [
-              _buildStreamDeckButton(Icons.bedtime, 'Sleep', Colors.indigoAccent),
-              _buildStreamDeckButton(Icons.lock, 'Lock', Colors.redAccent),
-              _buildStreamDeckButton(Icons.mic, 'Mic Mute', Colors.orangeAccent),
-              _buildStreamDeckButton(Icons.screenshot, 'Screenshot', Colors.greenAccent),
-              _buildStreamDeckButton(Icons.play_arrow, 'Play/Pause', Colors.blueAccent),
-              _buildStreamDeckButton(Icons.volume_up, 'Volume Up', Colors.purpleAccent),
+              _buildStreamDeckButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
+              _buildStreamDeckButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
+              _buildStreamDeckButton(Icons.mic, 'Mic Mute', Colors.orangeAccent, () => signalRService.invoke('ToggleMic')),
+              _buildStreamDeckButton(Icons.screenshot, 'Screenshot', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
+              _buildStreamDeckButton(Icons.play_arrow, 'Play/Pause', Colors.blueAccent, () {}),
+              _buildStreamDeckButton(Icons.volume_up, 'Volume Up', Colors.purpleAccent, () {}),
             ],
           ),
         ),
@@ -42,7 +46,7 @@ class RemoteView extends StatelessWidget {
     );
   }
 
-  Widget _buildStreamDeckButton(IconData icon, String label, Color accentColor) {
+  Widget _buildStreamDeckButton(IconData icon, String label, Color accentColor, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
@@ -60,9 +64,7 @@ class RemoteView extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () {
-            // Dummy action
-          },
+          onTap: onTap,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -103,14 +105,29 @@ class RemoteView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Touchpad Area',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white54,
+            Expanded(
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  final dx = details.delta.dx.toInt();
+                  final dy = details.delta.dy.toInt();
+                  if (dx != 0 || dy != 0) {
+                     Get.find<SignalRService>().invoke('MoveMouse', args: [dx, dy]);
+                  }
+                },
+                onTap: () => Get.find<SignalRService>().invoke('LeftClick'),
+                onLongPress: () => Get.find<SignalRService>().invoke('RightClick'),
+                child: Container(
+                  color: Colors.transparent, // Catches touches
+                  child: const Center(
+                    child: Text(
+                      'Touchpad Active\n(Tap: Left Click, Long Press: Right Click)',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white54,
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:signalr_netcore/signalr_client.dart';
 import '../../../core/network/udp_discovery.dart';
+import '../../../core/network/signalr_service.dart';
 import '../../remote/views/remote_view.dart';
 
 class ConnectionController extends GetxController {
@@ -11,7 +11,6 @@ class ConnectionController extends GetxController {
   var errorMessage = ''.obs;
 
   final pinController = TextEditingController();
-  HubConnection? hubConnection;
 
   @override
   void onInit() {
@@ -39,13 +38,8 @@ class ConnectionController extends GetxController {
     errorMessage.value = '';
     
     try {
-      hubConnection = HubConnectionBuilder()
-          .withUrl("http://${serverIp.value}:5000/airpadHub",
-              options: HttpConnectionOptions(
-                  accessTokenFactory: () async => pinController.text))
-          .build();
-          
-      await hubConnection!.start();
+      final signalRService = Get.put(SignalRService());
+      await signalRService.connect(serverIp.value, pinController.text);
       Get.offAll(() => const RemoteView());
     } catch (e) {
       errorMessage.value = 'Connection failed. Check PIN.';
