@@ -9,6 +9,7 @@ using AirPad.Core.Interfaces;
 using AirPad.Infrastructure.Network;
 using AirPad.App.Hubs;
 using AirPad.Infrastructure.Native;
+using AirPad.Infrastructure.Security;
 
 namespace AirPad.App
 {
@@ -24,6 +25,7 @@ namespace AirPad.App
                 {
                     services.AddSingleton<IDiscoveryService, UdpDiscoveryService>();
                     services.AddSingleton<IMouseService, WindowsMouseService>();
+                    services.AddSingleton<IAuthService, AuthService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
