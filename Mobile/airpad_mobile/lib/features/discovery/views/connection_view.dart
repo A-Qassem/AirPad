@@ -11,14 +11,9 @@ class ConnectionView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("AirPad", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Padding(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Obx(() {
             if (controller.isSearching.value) {
@@ -122,7 +117,7 @@ class ConnectionView extends StatelessWidget {
             }
           }),
         ),
-      ),
+      )),
     );
   }
 }

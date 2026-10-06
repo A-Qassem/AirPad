@@ -81,13 +81,8 @@ class _RemoteViewState extends State<RemoteView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text("AirPad Remote", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Stack(
+      body: SafeArea(
+        child: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
@@ -109,7 +104,18 @@ class _RemoteViewState extends State<RemoteView> {
                 
                 const SizedBox(height: 16),
 
-                // Scrollers and Media Controls
+                // Misc Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildLabeledMediaButton(Icons.bluetooth, 'Bluetooth', Colors.blue, () => signalRService.invoke('ToggleBluetooth')),
+                    const SizedBox(width: 32),
+                    _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Scrollers
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
@@ -134,17 +140,6 @@ class _RemoteViewState extends State<RemoteView> {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Misc Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildLabeledMediaButton(Icons.bluetooth, 'Bluetooth', Colors.blue, () => signalRService.invoke('ToggleBluetooth')),
-                    const SizedBox(width: 32),
-                    _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
-                  ],
                 ),
                 const SizedBox(height: 24),
 
@@ -241,7 +236,7 @@ class _RemoteViewState extends State<RemoteView> {
               child: _buildShortcutToolbar(),
             ),
         ],
-      ),
+      )),
     );
   }
 
