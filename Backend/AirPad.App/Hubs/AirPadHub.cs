@@ -102,5 +102,15 @@ namespace AirPad.App.Hubs
         {
             _systemService.TakeScreenshot();
         }
+
+        public void MediaPlayPause()
+        {
+            _systemService.MediaPlayPause();
+        }
+
+        public void VolumeUp()
+        {
+            _systemService.VolumeUp();
+        }
     }
 }

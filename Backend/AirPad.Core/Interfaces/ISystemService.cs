@@ -6,5 +6,7 @@ namespace AirPad.Core.Interfaces
         void Sleep();
         void LockScreen();
         void TakeScreenshot();
+        void MediaPlayPause();
+        void VolumeUp();
     }
 }

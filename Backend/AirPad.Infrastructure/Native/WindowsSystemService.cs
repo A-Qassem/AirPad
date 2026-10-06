@@ -21,6 +21,8 @@ namespace AirPad.Infrastructure.Native
         private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
         private const uint WM_APPCOMMAND = 0x0319;
         private const int APPCOMMAND_MICROPHONE_VOLUME_MUTE = 0x180000;
+        private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 0xE0000;
+        private const int APPCOMMAND_VOLUME_UP = 0xA0000;
 
         private const byte VK_LWIN = 0x5B;
         private const byte VK_SNAPSHOT = 0x2C;
@@ -47,6 +49,16 @@ namespace AirPad.Infrastructure.Native
             keybd_event(VK_SNAPSHOT, 0, 0, 0); // PrintScreen Down
             keybd_event(VK_SNAPSHOT, 0, KEYEVENTF_KEYUP, 0); // PrintScreen Up
             keybd_event(VK_LWIN, 0, KEYEVENTF_KEYUP, 0); // Win Up
+        }
+
+        public void MediaPlayPause()
+        {
+            SendMessage(HWND_BROADCAST, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_MEDIA_PLAY_PAUSE);
+        }
+
+        public void VolumeUp()
+        {
+            SendMessage(HWND_BROADCAST, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_UP);
         }
     }
 }
