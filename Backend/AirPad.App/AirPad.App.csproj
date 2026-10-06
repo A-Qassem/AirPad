@@ -10,5 +10,9 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AirPad.Core\AirPad.Core.csproj" />
+    <ProjectReference Include="..\AirPad.Infrastructure\AirPad.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

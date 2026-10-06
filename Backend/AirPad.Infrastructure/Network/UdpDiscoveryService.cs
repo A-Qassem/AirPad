@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AirPad.Core.Interfaces;
+using System.Net;
 
 namespace AirPad.Infrastructure.Network
 {
@@ -26,8 +27,12 @@ namespace AirPad.Infrastructure.Network
                                 var result = await udpClient.ReceiveAsync();
                                 var message = Encoding.UTF8.GetString(result.Buffer);
                                 
-                                Debug.WriteLine($"Sender Endpoint: {result.RemoteEndPoint}");
-                                Debug.WriteLine($"Message: {message}");
+                                if (message == "AirPad_Discover")
+                                {
+                                    var ipAddress = GetLocalIPAddress();
+                                    var responseBytes = Encoding.UTF8.GetBytes($"AirPad_Server: {ipAddress}");
+                                    await udpClient.SendAsync(responseBytes, responseBytes.Length, result.RemoteEndPoint);
+                                }
                             }
                             catch (ObjectDisposedException)
                             {
@@ -47,6 +52,19 @@ namespace AirPad.Infrastructure.Network
             {
                 Debug.WriteLine($"An error occurred in UdpDiscoveryService: {ex.Message}");
             }
+        }
+
+        private static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            return "127.0.0.1";
         }
     }
 }

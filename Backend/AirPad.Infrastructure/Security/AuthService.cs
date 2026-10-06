@@ -46,10 +46,15 @@ namespace AirPad.Infrastructure.Security
             }
 
             // Failed attempt
-            var attempts = record.LockoutEnd <= DateTime.UtcNow ? 1 : record.Attempts + 1;
-            var lockoutEnd = attempts >= 3 ? DateTime.UtcNow.AddMinutes(5) : DateTime.MinValue;
-
-            _failedAttempts[ipAddress] = (attempts, lockoutEnd);
+            _failedAttempts.AddOrUpdate(
+                ipAddress,
+                (1, DateTime.MinValue),
+                (key, oldValue) =>
+                {
+                    var attempts = oldValue.LockoutEnd <= DateTime.UtcNow ? 1 : oldValue.Attempts + 1;
+                    var lockoutEnd = attempts >= 3 ? DateTime.UtcNow.AddMinutes(5) : DateTime.MinValue;
+                    return (attempts, lockoutEnd);
+                });
 
             return false;
         }
