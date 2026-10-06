@@ -197,11 +197,10 @@ class _RemoteViewState extends State<RemoteView> {
   Widget _buildShortcutToolbar() {
     final signalRService = Get.find<SignalRService>();
     return Container(
-      height: 48,
       color: const Color(0xFF1E1E1E),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Wrap(
+        alignment: WrapAlignment.center,
         children: [
           _shortcutBtn('Esc', () => signalRService.invoke('PressKey', args: [0x1B])),
           _shortcutBtn('Tab', () => signalRService.invoke('PressKey', args: [0x09])),
