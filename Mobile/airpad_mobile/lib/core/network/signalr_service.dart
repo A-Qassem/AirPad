@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 import 'dart:developer';
 import 'dart:async';
+import 'dart:io';
 import '../../features/discovery/views/connection_view.dart';
 import '../../features/discovery/controllers/connection_controller.dart';
 
@@ -23,7 +24,9 @@ class SignalRService extends GetxService {
 
     _heartbeatTimer?.cancel();
 
-    final url = "http://$ip:5001/airpadhub?pin=$pin";
+    final deviceName = Uri.encodeComponent(Platform.localHostname);
+    final deviceType = Uri.encodeComponent(Platform.operatingSystem);
+    final url = "http://$ip:5001/airpadhub?pin=$pin&deviceName=$deviceName&deviceType=$deviceType";
 
     _hubConnection = HubConnectionBuilder()
         .withUrl(url)
@@ -39,6 +42,11 @@ class SignalRService extends GetxService {
     _hubConnection!.onclose(({error}) {
       log("Connection Closed: $error");
       _handleDisconnect();
+    });
+
+    _hubConnection!.on("ForceDisconnect", (arguments) {
+      log("Server requested force disconnect.");
+      stop();
     });
 
     await _hubConnection!.start();

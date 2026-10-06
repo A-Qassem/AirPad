@@ -12,13 +12,15 @@ namespace AirPad.App.Hubs
         private readonly IAuthService _authService;
         private readonly IKeyboardService _keyboardService;
         private readonly ISystemService _systemService;
+        private readonly IUiNotifier _uiNotifier;
 
-        public AirPadHub(IMouseService mouseService, IAuthService authService, IKeyboardService keyboardService, ISystemService systemService)
+        public AirPadHub(IMouseService mouseService, IAuthService authService, IKeyboardService keyboardService, ISystemService systemService, IUiNotifier uiNotifier)
         {
             _mouseService = mouseService;
             _authService = authService;
             _keyboardService = keyboardService;
             _systemService = systemService;
+            _uiNotifier = uiNotifier;
         }
 
         public override Task OnConnectedAsync()
@@ -34,8 +36,22 @@ namespace AirPad.App.Hubs
                 throw new HubException("Unauthorized: Invalid PIN or IP locked out.");
             }
 
+            var deviceName = httpContext?.Request.Query["deviceName"].ToString();
+            var deviceType = httpContext?.Request.Query["deviceType"].ToString();
+
+            _uiNotifier.NotifyClientConnected(
+                string.IsNullOrEmpty(deviceName) ? "Unknown Device" : deviceName,
+                string.IsNullOrEmpty(deviceType) ? "Unknown OS" : deviceType
+            );
+
             Debug.WriteLine($"Client connected successfully from {ipAddress}.");
             return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            _uiNotifier.NotifyClientDisconnected();
+            return base.OnDisconnectedAsync(exception);
         }
 
         // Mouse movement uses SignalR send() — true fire-and-forget over the

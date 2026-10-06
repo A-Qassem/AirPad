@@ -27,6 +27,7 @@ namespace AirPad.App
                     services.AddSingleton<IDiscoveryService, UdpDiscoveryService>();
                     services.AddSingleton<IMouseService, WindowsMouseService>();
                     services.AddSingleton<IAuthService, AuthService>();
+                    services.AddSingleton<IUiNotifier, UiNotifier>();
                     services.AddSingleton<IKeyboardService, WindowsKeyboardService>();
                     services.AddSingleton<ISystemService, WindowsSystemService>();
                     services.AddHostedService<SystemStateSyncService>();
