@@ -3,8 +3,49 @@ import 'package:get/get.dart';
 import 'dart:async';
 import '../../../core/network/signalr_service.dart';
 
-class RemoteView extends StatelessWidget {
+class RemoteView extends StatefulWidget {
   const RemoteView({super.key});
+
+  @override
+  State<RemoteView> createState() => _RemoteViewState();
+}
+
+class _RemoteViewState extends State<RemoteView> {
+  final FocusNode _keyboardFocusNode = FocusNode();
+  final TextEditingController _keyboardController = TextEditingController();
+  String _lastText = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _keyboardFocusNode.addListener(() {
+      if (!_keyboardFocusNode.hasFocus) {
+        _keyboardController.clear();
+        _lastText = "";
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _keyboardFocusNode.dispose();
+    _keyboardController.dispose();
+    super.dispose();
+  }
+
+  void _onTextChanged(String text) {
+    final signalRService = Get.find<SignalRService>();
+    if (text.length > _lastText.length) {
+      String added = text.substring(_lastText.length);
+      signalRService.invoke('TypeText', args: [added]);
+    } else if (text.length < _lastText.length) {
+      int backspaces = _lastText.length - text.length;
+      for (int i = 0; i < backspaces; i++) {
+        signalRService.invoke('PressKey', args: [0x08]); // Backspace
+      }
+    }
+    _lastText = text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +58,19 @@ class RemoteView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.keyboard, color: Colors.blueAccent),
+            onPressed: () {
+              if (_keyboardFocusNode.hasFocus) {
+                _keyboardFocusNode.unfocus();
+              } else {
+                _keyboardFocusNode.requestFocus();
+              }
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Stack(
         children: [
@@ -115,7 +169,75 @@ class RemoteView extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: ExpandableTouchpad(),
           ),
+
+          // Hidden TextField for native keyboard
+          Positioned(
+            top: -100,
+            child: SizedBox(
+              width: 10,
+              height: 10,
+              child: TextField(
+                focusNode: _keyboardFocusNode,
+                controller: _keyboardController,
+                onChanged: _onTextChanged,
+                autocorrect: false,
+                enableSuggestions: false,
+              ),
+            ),
+          ),
+
+          // Shortcut Toolbar (shows only when keyboard is up)
+          if (MediaQuery.of(context).viewInsets.bottom > 0)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildShortcutToolbar(),
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShortcutToolbar() {
+    final signalRService = Get.find<SignalRService>();
+    return Container(
+      height: 48,
+      color: const Color(0xFF1E1E1E),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        children: [
+          _shortcutBtn('Esc', () => signalRService.invoke('PressKey', args: [0x1B])),
+          _shortcutBtn('Tab', () => signalRService.invoke('PressKey', args: [0x09])),
+          _shortcutBtn('Ctrl+C', () => signalRService.invoke('SendShortcut', args: [[0x11, 0x43]])),
+          _shortcutBtn('Ctrl+V', () => signalRService.invoke('SendShortcut', args: [[0x11, 0x56]])),
+          _shortcutBtn('Ctrl+X', () => signalRService.invoke('SendShortcut', args: [[0x11, 0x58]])),
+          _shortcutBtn('Ctrl+Z', () => signalRService.invoke('SendShortcut', args: [[0x11, 0x5A]])),
+          _shortcutBtn('Ctrl+A', () => signalRService.invoke('SendShortcut', args: [[0x11, 0x41]])),
+          _shortcutBtn('Win', () => signalRService.invoke('PressKey', args: [0x5B])),
+          _shortcutBtn('Win+V', () => signalRService.invoke('SendShortcut', args: [[0x5B, 0x56]])),
+          _shortcutBtn('Enter', () => signalRService.invoke('PressKey', args: [0x0D])),
+        ],
+      ),
+    );
+  }
+
+  Widget _shortcutBtn(String label, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white12,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+        ),
       ),
     );
   }
