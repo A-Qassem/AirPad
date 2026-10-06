@@ -108,14 +108,49 @@ namespace AirPad.App.Hubs
             _systemService.MediaPlayPause();
         }
 
+        public void MediaNextTrack()
+        {
+            _systemService.MediaNextTrack();
+        }
+
+        public void MediaPrevTrack()
+        {
+            _systemService.MediaPrevTrack();
+        }
+
         public void VolumeUp()
         {
             _systemService.VolumeUp();
         }
 
+        public void VolumeDown()
+        {
+            _systemService.VolumeDown();
+        }
+
         public void VolumeMute()
         {
             _systemService.VolumeMute();
+        }
+
+        public void AppSwitcher()
+        {
+            _systemService.AppSwitcher();
+        }
+
+        public void LanguageSwap()
+        {
+            _systemService.LanguageSwap();
+        }
+
+        public void BrightnessUp()
+        {
+            _systemService.BrightnessUp();
+        }
+
+        public void BrightnessDown()
+        {
+            _systemService.BrightnessDown();
         }
     }
 }
