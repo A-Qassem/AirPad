@@ -1,10 +1,13 @@
 using System;
 using System.Threading;
 using System.Windows;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AirPad.Core.Interfaces;
 using AirPad.Infrastructure.Network;
+using AirPad.App.Hubs;
 
 namespace AirPad.App
 {
@@ -19,6 +22,27 @@ namespace AirPad.App
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IDiscoveryService, UdpDiscoveryService>();
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.ConfigureKestrel(options =>
+                    {
+                        options.ListenAnyIP(5001);
+                    });
+
+                    webBuilder.ConfigureServices(services =>
+                    {
+                        services.AddSignalR();
+                    });
+
+                    webBuilder.Configure(app =>
+                    {
+                        app.UseRouting();
+                        app.UseEndpoints(endpoints =>
+                        {
+                            endpoints.MapHub<AirPadHub>("/airpadhub");
+                        });
+                    });
                 })
                 .Build();
         }
