@@ -16,21 +16,25 @@ namespace AirPad.Infrastructure.Native
         private static extern bool LockWorkStation();
 
         [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
 
         private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
         private const uint WM_APPCOMMAND = 0x0319;
         private const int APPCOMMAND_MICROPHONE_VOLUME_MUTE = 0x180000;
-        private const int APPCOMMAND_MEDIA_PLAY_PAUSE = 0xE0000;
-        private const int APPCOMMAND_VOLUME_UP = 0xA0000;
 
         private const byte VK_LWIN = 0x5B;
         private const byte VK_SNAPSHOT = 0x2C;
+        private const byte VK_VOLUME_UP = 0xAF;
+        private const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
         private const uint KEYEVENTF_KEYUP = 0x0002;
 
         public void ToggleMic()
         {
-            SendMessage(HWND_BROADCAST, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_MICROPHONE_VOLUME_MUTE);
+            IntPtr handle = GetForegroundWindow();
+            SendMessage(handle, WM_APPCOMMAND, handle, (IntPtr)APPCOMMAND_MICROPHONE_VOLUME_MUTE);
         }
 
         public void Sleep()
@@ -53,12 +57,14 @@ namespace AirPad.Infrastructure.Native
 
         public void MediaPlayPause()
         {
-            SendMessage(HWND_BROADCAST, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_MEDIA_PLAY_PAUSE);
+            keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, 0);
+            keybd_event(VK_MEDIA_PLAY_PAUSE, 0, KEYEVENTF_KEYUP, 0);
         }
 
         public void VolumeUp()
         {
-            SendMessage(HWND_BROADCAST, WM_APPCOMMAND, IntPtr.Zero, (IntPtr)APPCOMMAND_VOLUME_UP);
+            keybd_event(VK_VOLUME_UP, 0, 0, 0);
+            keybd_event(VK_VOLUME_UP, 0, KEYEVENTF_KEYUP, 0);
         }
     }
 }
