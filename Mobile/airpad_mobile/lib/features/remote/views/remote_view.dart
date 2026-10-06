@@ -83,65 +83,86 @@ class _RemoteViewState extends State<RemoteView> {
 
                 // Scrollers and Media Controls
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       InfiniteWheelScroller(
                         label: "Scroll",
                         onUp: () => signalRService.invoke('Scroll', args: [120]),
                         onDown: () => signalRService.invoke('Scroll', args: [-120]),
                       ),
-                      
-                      // Center Media Pad
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildLabeledMediaButton(Icons.language, 'Language', Colors.cyanAccent, () => signalRService.invoke('LanguageSwap')),
-                              const SizedBox(width: 16),
-                              _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildLabeledMediaButton(Icons.skip_previous, 'Prev', Colors.white24, () => signalRService.invoke('MediaPrevTrack')),
-                              const SizedBox(width: 16),
-                              _buildLabeledMediaButton(Icons.play_arrow, 'Play', Colors.blueAccent, () => signalRService.invoke('MediaPlayPause')),
-                              const SizedBox(width: 16),
-                              _buildLabeledMediaButton(Icons.skip_next, 'Next', Colors.white24, () => signalRService.invoke('MediaNextTrack')),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              RepeatableLabeledButton(
-                                icon: Icons.brightness_low,
-                                label: 'Dim',
-                                color: Colors.orangeAccent,
-                                onTap: () => signalRService.invoke('BrightnessDown'),
-                              ),
-                              const SizedBox(width: 16),
-                              RepeatableLabeledButton(
-                                icon: Icons.brightness_high,
-                                label: 'Bright',
-                                color: Colors.orangeAccent,
-                                onTap: () => signalRService.invoke('BrightnessUp'),
-                              ),
-                            ],
-                          ),
-                        ],
+                      InfiniteWheelScroller(
+                        label: "Brightness",
+                        onUp: () => signalRService.invoke('BrightnessUp'),
+                        onDown: () => signalRService.invoke('BrightnessDown'),
                       ),
-                      
                       InfiniteWheelScroller(
                         label: "Volume",
                         onUp: () => signalRService.invoke('VolumeUp'),
                         onDown: () => signalRService.invoke('VolumeDown'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Misc Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildLabeledMediaButton(Icons.bluetooth, 'Bluetooth', Colors.blue, () => signalRService.invoke('ToggleBluetooth')),
+                    const SizedBox(width: 32),
+                    _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Media Player Card
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E1E),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.black26,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.music_note, color: Colors.blueAccent, size: 32),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Unknown Title", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                SizedBox(height: 4),
+                                Text("Unknown Artist", style: TextStyle(color: Colors.white54, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildLabeledMediaButton(Icons.skip_previous, 'Prev', Colors.white54, () => signalRService.invoke('MediaPrevTrack')),
+                          _buildLabeledMediaButton(Icons.play_arrow, 'Play', Colors.white, () => signalRService.invoke('MediaPlayPause')),
+                          _buildLabeledMediaButton(Icons.skip_next, 'Next', Colors.white54, () => signalRService.invoke('MediaNextTrack')),
+                        ],
                       ),
                     ],
                   ),
@@ -390,13 +411,16 @@ class InfiniteWheelScroller extends StatefulWidget {
 
 class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
   int _lastIndex = 0;
+  int _localValue = 50;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(widget.label, style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
+        Text('$_localValue', style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
         Container(
           width: 60,
           height: 160,
@@ -415,8 +439,10 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
             onSelectedItemChanged: (index) {
               if (index > _lastIndex) {
                 widget.onDown(); // Rolling down
+                setState(() { _localValue = (_localValue - 2).clamp(0, 100); });
               } else if (index < _lastIndex) {
                 widget.onUp(); // Rolling up
+                setState(() { _localValue = (_localValue + 2).clamp(0, 100); });
               }
               _lastIndex = index;
             },

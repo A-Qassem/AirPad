@@ -2,8 +2,11 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 using AirPad.Core.Interfaces;
 using NAudio.CoreAudioApi;
+using Windows.Devices.Radios;
 
 namespace AirPad.Infrastructure.Native
 {
@@ -181,6 +184,24 @@ namespace AirPad.Infrastructure.Native
                 });
             }
             catch { }
+        }
+
+        public async void ToggleBluetooth()
+        {
+            try
+            {
+                var radios = await Radio.GetRadiosAsync();
+                var bluetoothRadio = radios.FirstOrDefault(r => r.Kind == RadioKind.Bluetooth);
+                if (bluetoothRadio != null)
+                {
+                    var newState = bluetoothRadio.State == RadioState.On ? RadioState.Off : RadioState.On;
+                    await bluetoothRadio.SetStateAsync(newState);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to toggle bluetooth: {ex.Message}");
+            }
         }
     }
 }

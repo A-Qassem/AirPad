@@ -16,5 +16,6 @@ namespace AirPad.Core.Interfaces
         void LanguageSwap();
         void BrightnessUp();
         void BrightnessDown();
+        void ToggleBluetooth();
     }
 }

@@ -147,6 +147,11 @@ namespace AirPad.App.Hubs
             _systemService.LanguageSwap();
         }
 
+        public void ToggleBluetooth()
+        {
+            _systemService.ToggleBluetooth();
+        }
+
         public void BrightnessUp()
         {
             _systemService.BrightnessUp();
