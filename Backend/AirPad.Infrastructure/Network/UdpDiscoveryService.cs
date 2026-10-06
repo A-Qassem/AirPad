@@ -30,7 +30,8 @@ namespace AirPad.Infrastructure.Network
                                 if (message == "AirPad_Discover")
                                 {
                                     var ipAddress = GetLocalIPAddress();
-                                    var responseBytes = Encoding.UTF8.GetBytes($"AirPad_Server: {ipAddress}");
+                                    var deviceName = Environment.MachineName;
+                                    var responseBytes = Encoding.UTF8.GetBytes($"AirPad_Server: {ipAddress}|{deviceName}");
                                     await udpClient.SendAsync(responseBytes, responseBytes.Length, result.RemoteEndPoint);
                                 }
                             }

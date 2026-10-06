@@ -7,6 +7,7 @@ import '../../remote/views/remote_view.dart';
 class ConnectionController extends GetxController {
   var isSearching = true.obs;
   var serverIp = ''.obs;
+  var serverName = ''.obs;
   var isConnecting = false.obs;
   var errorMessage = ''.obs;
 
@@ -21,11 +22,18 @@ class ConnectionController extends GetxController {
   Future<void> startDiscovery() async {
     isSearching.value = true;
     errorMessage.value = '';
+    serverIp.value = '';
+    serverName.value = '';
+    pinController.clear();
     
-    final ip = await UdpDiscovery.discoverServer();
+    final info = await UdpDiscovery.discoverServer();
     
-    if (ip != null) {
-      serverIp.value = ip;
+    // Add a slight artificial delay so the UI doesn't flash too fast
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (info != null) {
+      serverIp.value = info.ip;
+      serverName.value = info.name;
     } else {
       errorMessage.value = 'AirPad Server not found on this network.';
     }

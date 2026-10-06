@@ -39,7 +39,11 @@ namespace AirPad.App
 
                     webBuilder.ConfigureServices(services =>
                     {
-                        services.AddSignalR();
+                        services.AddSignalR(options =>
+                        {
+                            options.KeepAliveInterval = TimeSpan.FromSeconds(2);
+                            options.ClientTimeoutInterval = TimeSpan.FromSeconds(5);
+                        });
                     });
 
                     webBuilder.Configure(app =>
