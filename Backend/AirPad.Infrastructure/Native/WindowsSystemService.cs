@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using AirPad.Core.Interfaces;
+using NAudio.CoreAudioApi;
 
 namespace AirPad.Infrastructure.Native
 {
@@ -23,7 +25,6 @@ namespace AirPad.Infrastructure.Native
 
         private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
         private const uint WM_APPCOMMAND = 0x0319;
-        private const int APPCOMMAND_MICROPHONE_VOLUME_MUTE = 0x180000;
 
         private const byte VK_LWIN = 0x5B;
         private const byte VK_SNAPSHOT = 0x2C;
@@ -33,8 +34,28 @@ namespace AirPad.Infrastructure.Native
 
         public void ToggleMic()
         {
-            IntPtr handle = GetForegroundWindow();
-            SendMessage(handle, WM_APPCOMMAND, handle, (IntPtr)APPCOMMAND_MICROPHONE_VOLUME_MUTE);
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                
+                // Get the default microphone
+                var commDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+                var multiDevice = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                
+                if (commDevice != null)
+                {
+                    commDevice.AudioEndpointVolume.Mute = !commDevice.AudioEndpointVolume.Mute;
+                }
+                
+                if (multiDevice != null && multiDevice.ID != commDevice?.ID)
+                {
+                    multiDevice.AudioEndpointVolume.Mute = !multiDevice.AudioEndpointVolume.Mute;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to toggle mic: {ex.Message}");
+            }
         }
 
         public void Sleep()

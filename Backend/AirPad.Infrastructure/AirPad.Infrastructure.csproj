@@ -15,4 +15,8 @@
     <ProjectReference Include="..\AirPad.Core\AirPad.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="3.1.0" />
+  </ItemGroup>
+
 </Project>
