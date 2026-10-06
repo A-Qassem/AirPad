@@ -467,8 +467,16 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
       children: [
         Text(widget.label, style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 14)),
         if (widget.serverValue != null) ...[
-          const SizedBox(height: 8),
-          Text('$_localValue', style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black45,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Text('$_localValue%', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+          ),
         ],
         const SizedBox(height: 8),
         Container(
