@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Storage\" />
+    <Folder Include="Native\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AirPad.Core\AirPad.Core.csproj" />
+  </ItemGroup>
+
 </Project>

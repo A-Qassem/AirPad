@@ -1,1 +1,5 @@
-<Solution />
+<Solution>
+  <Project Path="AirPad.App/AirPad.App.csproj" Id="a42dff98-2903-4a48-9e54-9e104396a68c" />
+  <Project Path="AirPad.Core/AirPad.Core.csproj" Id="0e4a4fbf-6bbe-438e-8c44-b7f06589137a" />
+  <Project Path="AirPad.Infrastructure/AirPad.Infrastructure.csproj" Id="7f07c7ed-7bc5-44e9-bf26-5decfe76ff61" />
+</Solution>

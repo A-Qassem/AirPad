@@ -26,6 +26,7 @@ namespace AirPad.App
                     services.AddSingleton<IDiscoveryService, UdpDiscoveryService>();
                     services.AddSingleton<IMouseService, WindowsMouseService>();
                     services.AddSingleton<IAuthService, AuthService>();
+                    services.AddSingleton<IKeyboardService, WindowsKeyboardService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
