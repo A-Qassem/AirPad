@@ -200,7 +200,7 @@ class _RemoteViewState extends State<RemoteView> {
       color: const Color(0xFF1E1E1E),
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Wrap(
-        alignment: WrapAlignment.center,
+        alignment: WrapAlignment.start,
         children: [
           _shortcutBtn('Esc', () => signalRService.invoke('PressKey', args: [0x1B])),
           _shortcutBtn('Tab', () => signalRService.invoke('PressKey', args: [0x09])),
@@ -219,13 +219,12 @@ class _RemoteViewState extends State<RemoteView> {
 
   Widget _shortcutBtn(String label, VoidCallback onTap) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white12,
             borderRadius: BorderRadius.circular(8),
