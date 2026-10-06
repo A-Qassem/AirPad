@@ -11,12 +11,14 @@ namespace AirPad.App.Hubs
         private readonly IMouseService _mouseService;
         private readonly IAuthService _authService;
         private readonly IKeyboardService _keyboardService;
+        private readonly ISystemService _systemService;
 
-        public AirPadHub(IMouseService mouseService, IAuthService authService, IKeyboardService keyboardService)
+        public AirPadHub(IMouseService mouseService, IAuthService authService, IKeyboardService keyboardService, ISystemService systemService)
         {
             _mouseService = mouseService;
             _authService = authService;
             _keyboardService = keyboardService;
+            _systemService = systemService;
         }
 
         public override Task OnConnectedAsync()
@@ -79,6 +81,26 @@ namespace AirPad.App.Hubs
         public void SendShortcut(ushort[] keyCodes)
         {
             _keyboardService.SendShortcut(keyCodes);
+        }
+
+        public void ToggleMic()
+        {
+            _systemService.ToggleMic();
+        }
+
+        public void Sleep()
+        {
+            _systemService.Sleep();
+        }
+
+        public void LockScreen()
+        {
+            _systemService.LockScreen();
+        }
+
+        public void TakeScreenshot()
+        {
+            _systemService.TakeScreenshot();
         }
     }
 }
