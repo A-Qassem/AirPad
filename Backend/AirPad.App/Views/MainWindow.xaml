@@ -66,7 +66,7 @@
                     <!-- Success Icon -->
                     <Grid Width="100" Height="100" HorizontalAlignment="Center" Margin="0,0,0,24">
                         <Ellipse Fill="#4CAF50" Opacity="0.2"/>
-                        <Path Data="M 25 50 L 45 70 L 75 30" Stroke="#4CAF50" StrokeThickness="6" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Path Data="M 0 20 L 20 40 L 50 0" Stretch="Uniform" Width="50" Height="40" Stroke="#4CAF50" StrokeThickness="6" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
 
                     <TextBlock Text="Connected Successfully" Foreground="#4CAF50" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,16"/>
