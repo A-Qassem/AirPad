@@ -461,9 +461,9 @@ class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: const Color(0xFF2C2C2C), // Solid dark grey background
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: const Color(0xFF3C3C3C)), // Solid border
       ),
       child: Row(
         children: [
