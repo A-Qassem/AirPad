@@ -15,6 +15,12 @@ class _RemoteViewState extends State<RemoteView> {
   final TextEditingController _keyboardController = TextEditingController();
   String _lastText = "";
 
+  int? _serverVolume;
+  int? _serverBrightness;
+  String _mediaTitle = "Unknown Title";
+  String _mediaArtist = "Unknown Artist";
+  bool _isPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -24,12 +30,34 @@ class _RemoteViewState extends State<RemoteView> {
         _lastText = "";
       }
     });
+
+    final signalRService = Get.find<SignalRService>();
+    signalRService.on('UpdateSystemState', _onSystemStateUpdate);
+  }
+
+  void _onSystemStateUpdate(List<Object?>? args) {
+    if (args != null && args.isNotEmpty) {
+      final state = args.first as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          _serverVolume = state['volume'] as int? ?? _serverVolume;
+          _serverBrightness = state['brightness'] as int? ?? _serverBrightness;
+          _mediaTitle = state['mediaTitle'] as String? ?? _mediaTitle;
+          _mediaArtist = state['mediaArtist'] as String? ?? _mediaArtist;
+          _isPlaying = state['isPlaying'] as bool? ?? _isPlaying;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
     _keyboardFocusNode.dispose();
     _keyboardController.dispose();
+
+    final signalRService = Get.find<SignalRService>();
+    signalRService.off('UpdateSystemState', handler: _onSystemStateUpdate);
+
     super.dispose();
   }
 
@@ -94,11 +122,13 @@ class _RemoteViewState extends State<RemoteView> {
                       ),
                       InfiniteWheelScroller(
                         label: "Brightness",
+                        serverValue: _serverBrightness,
                         onUp: () => signalRService.invoke('BrightnessUp'),
                         onDown: () => signalRService.invoke('BrightnessDown'),
                       ),
                       InfiniteWheelScroller(
                         label: "Volume",
+                        serverValue: _serverVolume,
                         onUp: () => signalRService.invoke('VolumeUp'),
                         onDown: () => signalRService.invoke('VolumeDown'),
                       ),
@@ -143,13 +173,13 @@ class _RemoteViewState extends State<RemoteView> {
                             child: const Icon(Icons.music_note, color: Colors.blueAccent, size: 32),
                           ),
                           const SizedBox(width: 16),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Unknown Title", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                SizedBox(height: 4),
-                                Text("Unknown Artist", style: TextStyle(color: Colors.white54, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(_mediaTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                const SizedBox(height: 4),
+                                Text(_mediaArtist, style: const TextStyle(color: Colors.white54, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ],
                             ),
                           ),
@@ -160,7 +190,7 @@ class _RemoteViewState extends State<RemoteView> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _buildLabeledMediaButton(Icons.skip_previous, 'Prev', Colors.white54, () => signalRService.invoke('MediaPrevTrack')),
-                          _buildLabeledMediaButton(Icons.play_arrow, 'Play', Colors.white, () => signalRService.invoke('MediaPlayPause')),
+                          _buildLabeledMediaButton(_isPlaying ? Icons.pause : Icons.play_arrow, _isPlaying ? 'Pause' : 'Play', Colors.white, () => signalRService.invoke('MediaPlayPause')),
                           _buildLabeledMediaButton(Icons.skip_next, 'Next', Colors.white54, () => signalRService.invoke('MediaNextTrack')),
                         ],
                       ),
@@ -397,12 +427,14 @@ class InfiniteWheelScroller extends StatefulWidget {
   final String label;
   final VoidCallback onUp;
   final VoidCallback onDown;
+  final int? serverValue;
 
   const InfiniteWheelScroller({
     super.key,
     required this.label,
     required this.onUp,
     required this.onDown,
+    this.serverValue,
   });
 
   @override
@@ -414,12 +446,30 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
   int _localValue = 50;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.serverValue != null) {
+      _localValue = widget.serverValue!;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant InfiniteWheelScroller oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.serverValue != null && widget.serverValue != oldWidget.serverValue) {
+      _localValue = widget.serverValue!;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(widget.label, style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 8),
-        Text('$_localValue', style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+        if (widget.serverValue != null) ...[
+          const SizedBox(height: 8),
+          Text('$_localValue', style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
+        ],
         const SizedBox(height: 8),
         Container(
           width: 60,
@@ -439,10 +489,14 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
             onSelectedItemChanged: (index) {
               if (index > _lastIndex) {
                 widget.onDown(); // Rolling down
-                setState(() { _localValue = (_localValue - 2).clamp(0, 100); });
+                if (widget.serverValue != null) {
+                  setState(() { _localValue = (_localValue - 2).clamp(0, 100); });
+                }
               } else if (index < _lastIndex) {
                 widget.onUp(); // Rolling up
-                setState(() { _localValue = (_localValue + 2).clamp(0, 100); });
+                if (widget.serverValue != null) {
+                  setState(() { _localValue = (_localValue + 2).clamp(0, 100); });
+                }
               }
               _lastIndex = index;
             },

@@ -10,6 +10,7 @@ using AirPad.Infrastructure.Network;
 using AirPad.App.Hubs;
 using AirPad.Infrastructure.Native;
 using AirPad.Infrastructure.Security;
+using AirPad.App.Services;
 
 namespace AirPad.App
 {
@@ -28,6 +29,7 @@ namespace AirPad.App
                     services.AddSingleton<IAuthService, AuthService>();
                     services.AddSingleton<IKeyboardService, WindowsKeyboardService>();
                     services.AddSingleton<ISystemService, WindowsSystemService>();
+                    services.AddHostedService<SystemStateSyncService>();
                     // UdpMouseServer removed: mouse movement now uses SignalR send()
                     // over the existing WebSocket — no second port required.
                     services.AddTransient<MainWindow>();

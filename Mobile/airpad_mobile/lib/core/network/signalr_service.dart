@@ -90,4 +90,12 @@ class SignalRService extends GetxService {
       log("Cannot invoke $methodName, not connected.");
     }
   }
+
+  void on(String methodName, void Function(List<Object?>?) handler) {
+    _hubConnection?.on(methodName, handler);
+  }
+
+  void off(String methodName, {void Function(List<Object?>?)? handler}) {
+    _hubConnection?.off(methodName, method: handler);
+  }
 }
