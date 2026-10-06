@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,9 +16,18 @@ namespace AirPad.App
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly Core.Interfaces.IAuthService _authService;
+
+        public MainWindow(Core.Interfaces.IAuthService authService)
         {
             InitializeComponent();
+            _authService = authService;
+            Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            PinTextBlock.Text = _authService.GetCurrentPin();
         }
     }
 }

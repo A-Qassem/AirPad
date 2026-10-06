@@ -28,6 +28,7 @@ namespace AirPad.App
                     services.AddSingleton<IAuthService, AuthService>();
                     services.AddSingleton<IKeyboardService, WindowsKeyboardService>();
                     services.AddSingleton<ISystemService, WindowsSystemService>();
+                    services.AddTransient<MainWindow>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -65,6 +66,9 @@ namespace AirPad.App
 
             // Fire-and-forget: run discovery service in the background
             _ = discoveryService.StartListeningAsync(5000, _cancellationTokenSource.Token);
+
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
         }
 
         protected override async void OnExit(ExitEventArgs e)
