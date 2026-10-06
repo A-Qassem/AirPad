@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 import 'dart:developer';
 import 'dart:async';
-import 'dart:io';
 import '../../features/discovery/views/connection_view.dart';
 import '../../features/discovery/controllers/connection_controller.dart';
 
@@ -10,25 +9,32 @@ class SignalRService extends GetxService {
   HubConnection? _hubConnection;
   Timer? _heartbeatTimer;
 
+  // Sub-pixel movement accumulators — kept here so they survive widget
+  // rebuilds and reconnects.
+  double remainderX = 0.0;
+  double remainderY = 0.0;
+
   bool get isConnected => _hubConnection?.state == HubConnectionState.Connected;
 
   Future<void> connect(String ip, String pin) async {
     if (_hubConnection != null) {
       await _hubConnection!.stop();
     }
-    
+
     _heartbeatTimer?.cancel();
 
     final url = "http://$ip:5001/airpadhub?pin=$pin";
-    
+
     _hubConnection = HubConnectionBuilder()
         .withUrl(url)
         .withAutomaticReconnect()
         .build();
 
-    // Make the app detect server drops aggressively (5 seconds instead of 30)
-    _hubConnection!.serverTimeoutInMilliseconds = 5000;
-    _hubConnection!.keepAliveIntervalInMilliseconds = 2000;
+    // The keepAlive ping timer fires on Dart's single event-loop isolate.
+    // Pushing it far out ensures it never fires during active mouse use.
+    // On local Wi-Fi a 30-second cadence is more than sufficient.
+    _hubConnection!.keepAliveIntervalInMilliseconds = 30000;
+    _hubConnection!.serverTimeoutInMilliseconds = 90000;
 
     _hubConnection!.onclose(({error}) {
       log("Connection Closed: $error");
@@ -37,36 +43,39 @@ class SignalRService extends GetxService {
 
     await _hubConnection!.start();
     log("SignalR Connected to $ip");
-    
-    _startHeartbeat(ip);
-  }
-
-  void _startHeartbeat(String ip) {
-    _heartbeatTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-      try {
-        // Aggressive instant-check: try to establish a split-second TCP connection
-        final socket = await Socket.connect(ip, 5001, timeout: const Duration(seconds: 1));
-        socket.destroy();
-      } catch (e) {
-        log("Heartbeat failed (Server Offline): $e");
-        _handleDisconnect();
-      }
-    });
   }
 
   void _handleDisconnect() {
     _heartbeatTimer?.cancel();
+
     if (Get.currentRoute != '/ConnectionView') {
-      Get.delete<ConnectionController>(); // Force a fresh state
+      Get.delete<ConnectionController>();
       Get.offAll(() => const ConnectionView());
     }
   }
 
   Future<void> stop() async {
     _heartbeatTimer?.cancel();
+    remainderX = 0.0;
+    remainderY = 0.0;
     if (_hubConnection != null) {
       await _hubConnection!.stop();
       _hubConnection = null;
+    }
+  }
+
+  /// Sends a mouse-move delta using fire-and-forget [send()].
+  ///
+  /// Advantages over the previous UDP approach:
+  /// — No round-trip ACK → no added latency
+  /// — Active TCP/WebSocket keeps the PC Wi-Fi adapter awake (no PSM freeze)
+  /// — Works through any firewall/NAT — only port 5001 needed
+  /// — No separate socket, no extra port, no PSM workarounds
+  void moveMouse(int dx, int dy) {
+    if (isConnected) {
+      // send() queues to the WebSocket write buffer and returns immediately.
+      // The Dart isolate is never blocked waiting for a server response.
+      _hubConnection!.send('MoveMouse', args: [dx, dy]);
     }
   }
 

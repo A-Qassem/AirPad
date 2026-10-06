@@ -38,6 +38,10 @@ namespace AirPad.App.Hubs
             return base.OnConnectedAsync();
         }
 
+        // Mouse movement uses SignalR send() — true fire-and-forget over the
+        // existing WebSocket. No second port, no UDP PSM issues, no extra code.
+        // The void return type means the server never sends an acknowledgment,
+        // so the client is never blocked waiting for a response.
         public void MoveMouse(int deltaX, int deltaY)
         {
             _mouseService.Move(deltaX, deltaY);

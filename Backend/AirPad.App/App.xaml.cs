@@ -28,6 +28,8 @@ namespace AirPad.App
                     services.AddSingleton<IAuthService, AuthService>();
                     services.AddSingleton<IKeyboardService, WindowsKeyboardService>();
                     services.AddSingleton<ISystemService, WindowsSystemService>();
+                    // UdpMouseServer removed: mouse movement now uses SignalR send()
+                    // over the existing WebSocket — no second port required.
                     services.AddTransient<MainWindow>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -41,8 +43,11 @@ namespace AirPad.App
                     {
                         services.AddSignalR(options =>
                         {
-                            options.KeepAliveInterval = TimeSpan.FromSeconds(2);
-                            options.ClientTimeoutInterval = TimeSpan.FromSeconds(5);
+                            // Server sends pings to clients at this interval.
+                            // Each ping causes a brief stall in the Flutter Dart isolate
+                            // (single-threaded) when processed — keep it rare.
+                            options.KeepAliveInterval = TimeSpan.FromSeconds(45);
+                            options.ClientTimeoutInterval = TimeSpan.FromSeconds(120);
                         });
                     });
 

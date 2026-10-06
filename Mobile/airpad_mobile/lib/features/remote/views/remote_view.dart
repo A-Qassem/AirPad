@@ -337,20 +337,32 @@ class ExpandableTouchpad extends StatefulWidget {
 class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
   bool _isOpen = false;
   double _sensitivity = 1.0;
+  // Sub-pixel remainders now live in SignalRService so they survive
+  // widget rebuilds and SignalR reconnects.
+  late final SignalRService _signalRService;
+
+  @override
+  void initState() {
+    super.initState();
+    _signalRService = Get.find<SignalRService>();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final signalRService = Get.find<SignalRService>();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (_isOpen) ...[
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Tap: Left Click   |   Hold: Right Click',
-              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildHintChip(Icons.touch_app, 'Tap', 'Left Click'),
+                const SizedBox(width: 16),
+                _buildHintChip(Icons.fingerprint, 'Hold', 'Right Click'),
+              ],
             ),
           ),
           Padding(
@@ -397,14 +409,21 @@ class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onPanUpdate: (details) {
-                        final dx = (details.delta.dx * _sensitivity).toInt();
-                        final dy = (details.delta.dy * _sensitivity).toInt();
+                        double dxRaw = (details.delta.dx * _sensitivity) + _signalRService.remainderX;
+                        double dyRaw = (details.delta.dy * _sensitivity) + _signalRService.remainderY;
+                        
+                        int dx = dxRaw.truncate();
+                        int dy = dyRaw.truncate();
+                        
+                        _signalRService.remainderX = dxRaw - dx;
+                        _signalRService.remainderY = dyRaw - dy;
+                        
                         if (dx != 0 || dy != 0) {
-                           signalRService.invoke('MoveMouse', args: [dx, dy]);
+                           _signalRService.moveMouse(dx, dy);
                         }
                       },
-                      onTap: () => signalRService.invoke('LeftClick'),
-                      onLongPress: () => signalRService.invoke('RightClick'),
+                      onTap: () => _signalRService.invoke('LeftClick'),
+                      onLongPress: () => _signalRService.invoke('RightClick'),
                       child: Center(
                          child: Icon(Icons.touch_app, color: Colors.blueAccent.withOpacity(0.1), size: 100),
                       ),
@@ -435,6 +454,31 @@ class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
                 ),
         ),
       ],
+    );
+  }
+
+  Widget _buildHintChip(IconData icon, String action, String result) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueAccent, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            '$action: ',
+            style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            result,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
     );
   }
 }
