@@ -87,33 +87,36 @@ class _RemoteViewState extends State<RemoteView> {
           SingleChildScrollView(
             child: Column(
               children: [
-                // Top Utilities Row with Labels
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLabeledButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
-                      _buildLabeledButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
-                      _buildLabeledButton(Icons.volume_off, 'Mute', Colors.orangeAccent, () => signalRService.invoke('VolumeMute')),
-                      _buildLabeledButton(Icons.screenshot, 'Screenshot', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                // Misc Buttons
+                // Rectangular Utilities Cluster
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _buildLabeledMediaButton(Icons.bluetooth, 'Bluetooth', Colors.blue, () => signalRService.invoke('ToggleBluetooth')),
-                    const SizedBox(width: 32),
-                    _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
+                    _buildLabeledButton(Icons.flip_to_front, 'Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
+                    const SizedBox(width: 16),
+                    Column(
+                      children: [
+                        _buildLabeledButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
+                        const SizedBox(height: 16),
+                        _buildLabeledButton(Icons.bluetooth, 'Bluetooth', Colors.blue, () => signalRService.invoke('ToggleBluetooth')),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      children: [
+                        _buildLabeledButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
+                        const SizedBox(height: 16),
+                        _buildLabeledButton(Icons.volume_off, 'Mute', Colors.orangeAccent, () => signalRService.invoke('VolumeMute')),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    _buildLabeledButton(Icons.screenshot, 'Capture', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
                   ],
                 ),
-                const SizedBox(height: 24),
+                
+                const SizedBox(height: 32),
 
                 // Scrollers
                 Padding(
@@ -711,3 +714,4 @@ class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
     );
   }
 }
+
