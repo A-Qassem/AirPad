@@ -18,134 +18,102 @@ class RemoteView extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Top Utilities Row with Labels
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
+          SingleChildScrollView(
+            child: Column(
               children: [
-                _buildLabeledButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
-                _buildLabeledButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
-                _buildLabeledButton(Icons.volume_off, 'Mute', Colors.orangeAccent, () => signalRService.invoke('VolumeMute')),
-                _buildLabeledButton(Icons.screenshot, 'Screenshot', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-
-          // Scrollers and Media Controls
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InfiniteWheelScroller(
-                  label: "Scroll",
-                  onUp: () => signalRService.invoke('Scroll', args: [120]),
-                  onDown: () => signalRService.invoke('Scroll', args: [-120]),
-                ),
-                
-                // Center Media Pad
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildLabeledMediaButton(Icons.language, 'Language', Colors.cyanAccent, () => signalRService.invoke('LanguageSwap')),
-                        const SizedBox(width: 16),
-                        _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildLabeledMediaButton(Icons.skip_previous, 'Prev', Colors.white24, () => signalRService.invoke('MediaPrevTrack')),
-                        const SizedBox(width: 16),
-                        _buildLabeledMediaButton(Icons.play_arrow, 'Play', Colors.blueAccent, () => signalRService.invoke('MediaPlayPause')),
-                        const SizedBox(width: 16),
-                        _buildLabeledMediaButton(Icons.skip_next, 'Next', Colors.white24, () => signalRService.invoke('MediaNextTrack')),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RepeatableLabeledButton(
-                          icon: Icons.brightness_low,
-                          label: 'Dim',
-                          color: Colors.orangeAccent,
-                          onTap: () => signalRService.invoke('BrightnessDown'),
-                        ),
-                        const SizedBox(width: 16),
-                        RepeatableLabeledButton(
-                          icon: Icons.brightness_high,
-                          label: 'Bright',
-                          color: Colors.orangeAccent,
-                          onTap: () => signalRService.invoke('BrightnessUp'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                
-                InfiniteWheelScroller(
-                  label: "Volume",
-                  onUp: () => signalRService.invoke('VolumeUp'),
-                  onDown: () => signalRService.invoke('VolumeDown'),
-                ),
-              ],
-            ),
-          ),
-          
-          const Spacer(),
-
-          // Touchpad Area
-          Expanded(
-            flex: 2,
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onPanUpdate: (details) {
-                  final dx = details.delta.dx.toInt();
-                  final dy = details.delta.dy.toInt();
-                  if (dx != 0 || dy != 0) {
-                     signalRService.invoke('MoveMouse', args: [dx, dy]);
-                  }
-                },
-                onTap: () => signalRService.invoke('LeftClick'),
-                onLongPress: () => signalRService.invoke('RightClick'),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                // Top Utilities Row with Labels
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.touch_app, color: Colors.blueAccent, size: 48),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Touchpad Active',
-                        style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16, fontWeight: FontWeight.bold),
+                      _buildLabeledButton(Icons.bedtime, 'Sleep', Colors.indigoAccent, () => signalRService.invoke('Sleep')),
+                      _buildLabeledButton(Icons.lock, 'Lock', Colors.redAccent, () => signalRService.invoke('LockScreen')),
+                      _buildLabeledButton(Icons.volume_off, 'Mute', Colors.orangeAccent, () => signalRService.invoke('VolumeMute')),
+                      _buildLabeledButton(Icons.screenshot, 'Screenshot', Colors.greenAccent, () => signalRService.invoke('TakeScreenshot')),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+
+                // Scrollers and Media Controls
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InfiniteWheelScroller(
+                        label: "Scroll",
+                        onUp: () => signalRService.invoke('Scroll', args: [120]),
+                        onDown: () => signalRService.invoke('Scroll', args: [-120]),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Tap = Left Click | Hold = Right Click',
-                        style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12),
+                      
+                      // Center Media Pad
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildLabeledMediaButton(Icons.language, 'Language', Colors.cyanAccent, () => signalRService.invoke('LanguageSwap')),
+                              const SizedBox(width: 16),
+                              _buildLabeledMediaButton(Icons.flip_to_front, 'Alt Tab', Colors.pinkAccent, () => signalRService.invoke('AppSwitcher')),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildLabeledMediaButton(Icons.skip_previous, 'Prev', Colors.white24, () => signalRService.invoke('MediaPrevTrack')),
+                              const SizedBox(width: 16),
+                              _buildLabeledMediaButton(Icons.play_arrow, 'Play', Colors.blueAccent, () => signalRService.invoke('MediaPlayPause')),
+                              const SizedBox(width: 16),
+                              _buildLabeledMediaButton(Icons.skip_next, 'Next', Colors.white24, () => signalRService.invoke('MediaNextTrack')),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RepeatableLabeledButton(
+                                icon: Icons.brightness_low,
+                                label: 'Dim',
+                                color: Colors.orangeAccent,
+                                onTap: () => signalRService.invoke('BrightnessDown'),
+                              ),
+                              const SizedBox(width: 16),
+                              RepeatableLabeledButton(
+                                icon: Icons.brightness_high,
+                                label: 'Bright',
+                                color: Colors.orangeAccent,
+                                onTap: () => signalRService.invoke('BrightnessUp'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
+                      InfiniteWheelScroller(
+                        label: "Volume",
+                        onUp: () => signalRService.invoke('VolumeUp'),
+                        onDown: () => signalRService.invoke('VolumeDown'),
                       ),
                     ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 100), // Padding to clear the collapsed touchpad
+              ],
             ),
+          ),
+
+          // Expandable Touchpad (Overlays on top of the UI)
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: ExpandableTouchpad(),
           ),
         ],
       ),
@@ -353,6 +321,118 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
               }),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class ExpandableTouchpad extends StatefulWidget {
+  const ExpandableTouchpad({super.key});
+
+  @override
+  State<ExpandableTouchpad> createState() => _ExpandableTouchpadState();
+}
+
+class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
+  bool _isOpen = false;
+  double _sensitivity = 1.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final signalRService = Get.find<SignalRService>();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_isOpen) ...[
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Tap: Left Click   |   Hold: Right Click',
+              style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            child: Row(
+              children: [
+                const Icon(Icons.speed, color: Colors.white54, size: 18),
+                const SizedBox(width: 8),
+                const Text('Sensitivity', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                Expanded(
+                  child: Slider(
+                    value: _sensitivity,
+                    min: 0.2,
+                    max: 3.0,
+                    activeColor: Colors.blueAccent,
+                    inactiveColor: Colors.white12,
+                    onChanged: (val) {
+                      setState(() {
+                        _sensitivity = val;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutQuint,
+          height: _isOpen ? 300 : 64,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(_isOpen ? 30 : 32),
+            border: Border.all(color: _isOpen ? Colors.blueAccent.withOpacity(0.5) : Colors.white12),
+            boxShadow: _isOpen 
+                ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.1), blurRadius: 20)] 
+                : [const BoxShadow(color: Colors.transparent, blurRadius: 0)],
+          ),
+          child: _isOpen
+              ? Stack(
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final dx = (details.delta.dx * _sensitivity).toInt();
+                        final dy = (details.delta.dy * _sensitivity).toInt();
+                        if (dx != 0 || dy != 0) {
+                           signalRService.invoke('MoveMouse', args: [dx, dy]);
+                        }
+                      },
+                      onTap: () => signalRService.invoke('LeftClick'),
+                      onLongPress: () => signalRService.invoke('RightClick'),
+                      child: Center(
+                         child: Icon(Icons.touch_app, color: Colors.blueAccent.withOpacity(0.1), size: 100),
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54, size: 32),
+                        onPressed: () => setState(() => _isOpen = false),
+                      )
+                    ),
+                  ],
+                )
+              : InkWell(
+                  onTap: () => setState(() => _isOpen = true),
+                  borderRadius: BorderRadius.circular(32),
+                  child: const Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.mouse, color: Colors.blueAccent, size: 28),
+                        SizedBox(width: 12),
+                        Text('Open Touchpad', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
         ),
       ],
     );
