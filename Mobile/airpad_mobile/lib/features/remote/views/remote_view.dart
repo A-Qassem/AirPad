@@ -58,19 +58,6 @@ class _RemoteViewState extends State<RemoteView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.keyboard, color: Colors.blueAccent),
-            onPressed: () {
-              if (_keyboardFocusNode.hasFocus) {
-                _keyboardFocusNode.unfocus();
-              } else {
-                _keyboardFocusNode.requestFocus();
-              }
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: Stack(
         children: [
@@ -165,9 +152,17 @@ class _RemoteViewState extends State<RemoteView> {
           ),
 
           // Expandable Touchpad (Overlays on top of the UI)
-          const Align(
+          Align(
             alignment: Alignment.bottomCenter,
-            child: ExpandableTouchpad(),
+            child: ExpandableTouchpad(
+              onToggleKeyboard: () {
+                if (_keyboardFocusNode.hasFocus) {
+                  _keyboardFocusNode.unfocus();
+                } else {
+                  _keyboardFocusNode.requestFocus();
+                }
+              },
+            ),
           ),
 
           // Hidden TextField for native keyboard
@@ -450,7 +445,9 @@ class _InfiniteWheelScrollerState extends State<InfiniteWheelScroller> {
 }
 
 class ExpandableTouchpad extends StatefulWidget {
-  const ExpandableTouchpad({super.key});
+  final VoidCallback onToggleKeyboard;
+
+  const ExpandableTouchpad({super.key, required this.onToggleKeyboard});
 
   @override
   State<ExpandableTouchpad> createState() => _ExpandableTouchpadState();
@@ -560,19 +557,48 @@ class _ExpandableTouchpadState extends State<ExpandableTouchpad> {
                     ),
                   ],
                 )
-              : InkWell(
-                  onTap: () => setState(() => _isOpen = true),
-                  borderRadius: BorderRadius.circular(32),
-                  child: const Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.mouse, color: Colors.blueAccent, size: 28),
-                        SizedBox(width: 12),
-                        Text('Open Touchpad', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold)),
-                      ],
+              : Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(() => _isOpen = true),
+                        borderRadius: BorderRadius.circular(32),
+                        child: const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.mouse, color: Colors.blueAccent, size: 28),
+                                SizedBox(width: 8),
+                                Text('Touchpad', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Container(width: 1, height: 32, color: Colors.white12), // Divider
+                    Expanded(
+                      child: InkWell(
+                        onTap: widget.onToggleKeyboard,
+                        borderRadius: BorderRadius.circular(32),
+                        child: const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.keyboard, color: Colors.blueAccent, size: 28),
+                                SizedBox(width: 8),
+                                Text('Keyboard', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
         ),
       ],
