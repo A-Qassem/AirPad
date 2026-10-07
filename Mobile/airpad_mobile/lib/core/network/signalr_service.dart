@@ -3,6 +3,7 @@ import 'package:signalr_netcore/signalr_client.dart';
 import 'dart:developer';
 import 'dart:async';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/discovery/views/connection_view.dart';
 import '../../features/discovery/controllers/connection_controller.dart';
 
@@ -46,11 +47,16 @@ class SignalRService extends GetxService {
 
     _hubConnection!.on("ForceDisconnect", (arguments) {
       log("Server requested force disconnect.");
-      stop();
+      stop(clearCredentials: true);
     });
 
     await _hubConnection!.start();
     log("SignalR Connected to $ip");
+    
+    // Save credentials for auto-reconnect
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_ip', ip);
+    await prefs.setString('saved_pin', pin);
   }
 
   void _handleDisconnect() {
@@ -62,10 +68,17 @@ class SignalRService extends GetxService {
     }
   }
 
-  Future<void> stop() async {
+  Future<void> stop({bool clearCredentials = false}) async {
     _heartbeatTimer?.cancel();
     remainderX = 0.0;
     remainderY = 0.0;
+    
+    if (clearCredentials) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('saved_ip');
+      await prefs.remove('saved_pin');
+    }
+    
     if (_hubConnection != null) {
       await _hubConnection!.stop();
       _hubConnection = null;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/network/udp_discovery.dart';
 import '../../../core/network/signalr_service.dart';
 import '../../remote/views/remote_view.dart';
@@ -16,6 +17,33 @@ class ConnectionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _checkSavedConnection();
+  }
+
+  Future<void> _checkSavedConnection() async {
+    isSearching.value = true;
+    errorMessage.value = '';
+    
+    final prefs = await SharedPreferences.getInstance();
+    final savedIp = prefs.getString('saved_ip');
+    final savedPin = prefs.getString('saved_pin');
+    
+    if (savedIp != null && savedPin != null) {
+      serverIp.value = savedIp;
+      pinController.text = savedPin;
+      
+      try {
+        final signalRService = Get.put(SignalRService());
+        await signalRService.connect(savedIp, savedPin);
+        Get.offAll(() => const RemoteView());
+        return;
+      } catch (e) {
+        // If auto-connect fails, clear saved credentials and fallback to discovery
+        await prefs.remove('saved_ip');
+        await prefs.remove('saved_pin');
+      }
+    }
+    
     startDiscovery();
   }
 
