@@ -7,7 +7,6 @@
     <img alt="Mobile" src="https://img.shields.io/badge/Mobile-Android%20%7C%20iOS-green?style=flat-square&logo=flutter"/>
     <img alt=".NET" src="https://img.shields.io/badge/.NET-10.0-purple?style=flat-square&logo=dotnet"/>
     <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.x-blue?style=flat-square&logo=flutter"/>
-    <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square"/>
   </p>
 </div>
 
@@ -203,13 +202,3 @@ Pre-built distributables are placed in the `Release/` folder after building:
 | `Release/Mobile/` | `AirPad.apk` — Android installer |
 
 ---
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**.

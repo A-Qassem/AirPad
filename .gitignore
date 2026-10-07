@@ -43,7 +43,9 @@ secrets.json
 **/.flutter-plugins-dependencies
 
 ## Android
-**/android/**/*.apk
+# Ignore Android build APKs but NOT Release/Mobile/AirPad.apk
+Mobile/airpad_mobile/build/**/*.apk
+/android/app/release
 **/android/**/*.aab
 **/android/app/build/
 **/android/local.properties
