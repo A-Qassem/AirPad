@@ -4,8 +4,10 @@
 ## Build results
 [Dd]ebug/
 [Dd]ebugPublic/
-[Rr]elease/
+Backend/[Rr]elease/
+Mobile/[Rr]elease/
 [Rr]eleases/
+!/Release/
 x64/
 x86/
 [Ww][Ii][Nn]32/
